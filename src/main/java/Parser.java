@@ -7,21 +7,30 @@ public class Parser {
         if (!isValid(input)) {
             throw new ParserException("Incorrect input");
         }
-        for (int i = input.length() - 1; i >= 0; i--) {
-            if (Character.isDigit(input.charAt(i))) {
-                String brackets = input.substring(i,input.indexOf(']', i) + 1);
-                input = input.replace(brackets,expand(brackets));
+
+        Matcher matcher = Pattern.compile(".*?(\\d+\\[\\w+?\\])").matcher(input);
+        while (matcher.find()) {
+            int start = matcher.start(1);
+            int end = matcher.end(1);
+            String bracketsWithRepeats = input.substring(start, end);
+            input = input.replace(bracketsWithRepeats,expand(bracketsWithRepeats));
+            matcher.reset(input);
             }
-        }
         return input;
     }
 
     private String expand(String brackets) throws ParserException {
-        String opened = "";
-        int repeats = brackets.charAt(0) - '0';
-        String phrase;
-        Matcher matcher = Pattern.compile("\\[(\\w+)\\]").matcher(brackets);
+        String expanded = "";
+        int repeats;
+        Matcher matcher = Pattern.compile("^\\d+").matcher(brackets);
+        if (matcher.find()) {
+            repeats = Integer.parseInt(matcher.group());
+        } else {
+            throw new ParserException();
+        }
 
+        String phrase;
+        matcher = Pattern.compile("\\[(\\w+)\\]").matcher(brackets);
         if (matcher.find()){
             phrase=matcher.group(1);
         } else {
@@ -29,9 +38,9 @@ public class Parser {
         }
 
         for(int i = 0; i < repeats; i++) {
-            opened += phrase;
+            expanded += phrase;
         }
-        return opened;
+        return expanded;
     }
 
     private boolean isValid(String input){
@@ -39,7 +48,7 @@ public class Parser {
                 input.chars().filter(c -> c == ']').count()) return false;
 
         for (int i = 0; i < input.length()-1; i++) {
-            if (Character.isDigit(input.charAt(i)) & input.charAt(i+1) != '[')
+            if (Character.isDigit(input.charAt(i)) & (input.charAt(i+1) != '[' & !Character.isDigit(input.charAt(i+1))))
                 return false;
         }
         return true;

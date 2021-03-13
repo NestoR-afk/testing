@@ -22,9 +22,11 @@ Parser parser = new Parser();
     @Test
     void correctInputTest(){
         String[] correctStrings = {"3[xyz]4[xy]z",
-                                   "2[3[x]y]"};
+                                   "2[3[x]y]",
+                                    "10[x]"};
         assertAll("correctStrings",
                 () -> assertEquals(parser.parse(correctStrings[0]), "xyzxyzxyzxyxyxyxyz"),
-                () -> assertEquals(parser.parse(correctStrings[1]), "xxxyxxxy"));
+                () -> assertEquals(parser.parse(correctStrings[1]), "xxxyxxxy"),
+                () -> assertEquals(parser.parse(correctStrings[2]),"xxxxxxxxxx"));
     }
 }
